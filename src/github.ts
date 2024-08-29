@@ -249,7 +249,7 @@ export async function setSecretForRepo(
         return octokit.codespaces.createOrUpdateRepoSecret({
           owner: repo_owner,
           repo: repo_name,
-          secret_name: name,
+          secret_name: final_name,
           key_id: publicKey.key_id,
           encrypted_value,
         });
@@ -257,7 +257,7 @@ export async function setSecretForRepo(
         return octokit.dependabot.createOrUpdateRepoSecret({
           owner: repo_owner,
           repo: repo_name,
-          secret_name: name,
+          secret_name: final_name,
           key_id: publicKey.key_id,
           encrypted_value,
         });
@@ -267,7 +267,7 @@ export async function setSecretForRepo(
           return octokit.actions.createOrUpdateEnvironmentSecret({
             repository_id: repo.id,
             environment_name: environment,
-            secret_name: name,
+            secret_name: final_name,
             key_id: publicKey.key_id,
             encrypted_value,
           });
@@ -275,7 +275,7 @@ export async function setSecretForRepo(
           return octokit.actions.createOrUpdateRepoSecret({
             owner: repo_owner,
             repo: repo_name,
-            secret_name: name,
+            secret_name: final_name,
             key_id: publicKey.key_id,
             encrypted_value,
           });
@@ -304,21 +304,21 @@ export async function deleteSecretForRepo(
       switch (target) {
         case "codespaces":
           return octokit.request(
-            `${action} /repos/${repo.full_name}/codespaces/secrets/${name}`
+            `${action} /repos/${repo.full_name}/codespaces/secrets/${final_name}`
           );
         case "dependabot":
           return octokit.request(
-            `${action} /repos/${repo.full_name}/dependabot/secrets/${name}`
+            `${action} /repos/${repo.full_name}/dependabot/secrets/${final_name}`
           );
         case "actions":
         default:
           if (environment) {
             return octokit.request(
-              `${action} /repositories/${repo.id}/environments/${environment}/secrets/${name}`
+              `${action} /repositories/${repo.id}/environments/${environment}/secrets/${final_name}`
             );
           } else {
             return octokit.request(
-              `${action} /repos/${repo.full_name}/actions/secrets/${name}`
+              `${action} /repos/${repo.full_name}/actions/secrets/${final_name}`
             );
           }
       }
