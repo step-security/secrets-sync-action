@@ -231,6 +231,7 @@ export async function setSecretForRepo(
   secret: string,
   repo: Repository,
   environment: string,
+  new_secret_prefix: string,
   dry_run: boolean,
   target: string
 ): Promise<void> {
@@ -238,8 +239,9 @@ export async function setSecretForRepo(
 
   const publicKey = await getPublicKey(octokit, repo, environment, target);
   const encrypted_value = encrypt(secret, publicKey.key);
+  const final_name = new_secret_prefix ? new_secret_prefix + name : name;
 
-  core.info(`Set \`${name} = ***\` on ${repo.full_name}`);
+  core.info(`Set \`${final_name} = ***\` on ${repo.full_name}`);
 
   if (!dry_run) {
     switch (target) {
@@ -288,10 +290,13 @@ export async function deleteSecretForRepo(
   secret: string,
   repo: Repository,
   environment: string,
+  new_secret_prefix: string,
   dry_run: boolean,
   target: string
 ): Promise<void> {
-  core.info(`Remove ${name} from ${repo.full_name}`);
+  const final_name = new_secret_prefix ? new_secret_prefix + name : name;
+
+  core.info(`Remove ${final_name} from ${repo.full_name}`);
 
   try {
     if (!dry_run) {

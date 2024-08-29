@@ -18,12 +18,12 @@ import * as config from "../src/config";
 
 import {
   DefaultOctokit,
+  deleteSecretForRepo,
   filterReposByPatterns,
-  listAllMatchingRepos,
   getRepos,
+  listAllMatchingRepos,
   publicKeyCache,
   setSecretForRepo,
-  deleteSecretForRepo,
 } from "../src/github";
 
 // @ts-ignore-next-line
@@ -41,6 +41,7 @@ beforeAll(() => {
     REPOSITORIES_LIST_REGEX: true,
     DRY_RUN: false,
     RETRIES: 3,
+    NEW_SECRET_PREFIX: "",
   });
 
   octokit = DefaultOctokit({
@@ -189,6 +190,7 @@ describe("setSecretForRepo", () => {
       secrets.FOO,
       repo,
       "",
+      "",
       true,
       "actions"
     );
@@ -201,6 +203,7 @@ describe("setSecretForRepo", () => {
       "FOO",
       secrets.FOO,
       repo,
+      "",
       "",
       true,
       "dependabot"
@@ -215,6 +218,7 @@ describe("setSecretForRepo", () => {
       secrets.FOO,
       repo,
       "",
+      "",
       true,
       "codespaces"
     );
@@ -227,6 +231,7 @@ describe("setSecretForRepo", () => {
       "FOO",
       secrets.FOO,
       repo,
+      "",
       "",
       true,
       "actions"
@@ -242,6 +247,7 @@ describe("setSecretForRepo", () => {
       secrets.FOO,
       repo,
       "",
+      "",
       false,
       "actions"
     );
@@ -255,6 +261,7 @@ describe("setSecretForRepo", () => {
       secrets.FOO,
       repo,
       "",
+      "",
       false,
       "dependabot"
     );
@@ -267,6 +274,7 @@ describe("setSecretForRepo", () => {
       "FOO",
       secrets.FOO,
       repo,
+      "",
       "",
       false,
       "codespaces"
@@ -320,6 +328,7 @@ describe("setSecretForRepo with environment", () => {
       secrets.FOO,
       repo,
       repoEnvironment,
+      "",
       true,
       "actions"
     );
@@ -333,6 +342,7 @@ describe("setSecretForRepo with environment", () => {
       secrets.FOO,
       repo,
       repoEnvironment,
+      "",
       true,
       "actions"
     );
@@ -347,6 +357,7 @@ describe("setSecretForRepo with environment", () => {
       secrets.FOO,
       repo,
       repoEnvironment,
+      "",
       true,
       "dependabot"
     );
@@ -361,6 +372,7 @@ describe("setSecretForRepo with environment", () => {
       secrets.FOO,
       repo,
       repoEnvironment,
+      "",
       false,
       "actions"
     );
@@ -401,6 +413,7 @@ describe("deleteSecretForRepo", () => {
       secrets.FOO,
       repo,
       "",
+      "",
       true,
       "actions"
     );
@@ -413,6 +426,7 @@ describe("deleteSecretForRepo", () => {
       "FOO",
       secrets.FOO,
       repo,
+      "",
       "",
       false,
       "actions"
@@ -427,6 +441,7 @@ describe("deleteSecretForRepo", () => {
       secrets.FOO,
       repo,
       "",
+      "",
       false,
       "dependabot"
     );
@@ -439,6 +454,7 @@ describe("deleteSecretForRepo", () => {
       "FOO",
       secrets.FOO,
       repo,
+      "",
       "",
       false,
       "codespaces"
@@ -473,6 +489,7 @@ describe("deleteSecretForRepo with environment", () => {
       secrets.FOO,
       repo,
       repoEnvironment,
+      "",
       true,
       "actions"
     );
@@ -486,6 +503,7 @@ describe("deleteSecretForRepo with environment", () => {
       secrets.FOO,
       repo,
       repoEnvironment,
+      "",
       true,
       "dependabot"
     );
@@ -499,6 +517,7 @@ describe("deleteSecretForRepo with environment", () => {
       secrets.FOO,
       repo,
       repoEnvironment,
+      "",
       false,
       "actions"
     );

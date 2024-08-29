@@ -88,6 +88,7 @@ export async function run(): Promise<void> {
           FOUND_SECRETS: Object.keys(secrets),
           ENVIRONMENT: config.ENVIRONMENT,
           TARGET: config.TARGET,
+          NEW_SECRET_PREFIX: config.NEW_SECRET_PREFIX,
         },
         null,
         2
@@ -110,6 +111,7 @@ export async function run(): Promise<void> {
               secrets[k],
               repo,
               config.ENVIRONMENT,
+              config.NEW_SECRET_PREFIX,
               config.DRY_RUN,
               config.TARGET
             )

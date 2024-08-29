@@ -60,6 +60,7 @@ function getConfig() {
         RUN_DELETE: ["1", "true"].includes(core.getInput("DELETE", { required: false }).toLowerCase()),
         ENVIRONMENT: core.getInput("ENVIRONMENT", { required: false }),
         TARGET: core.getInput("TARGET", { required: false }),
+        NEW_SECRET_PREFIX: core.getInput("NEW_SECRET_PREFIX", { required: false }),
     };
     if (config.DRY_RUN) {
         core.info("[DRY_RUN='true'] No changes will be written to secrets");
@@ -265,12 +266,13 @@ function getPublicKey(octokit, repo, environment, target) {
     });
 }
 exports.getPublicKey = getPublicKey;
-function setSecretForRepo(octokit, name, secret, repo, environment, dry_run, target) {
+function setSecretForRepo(octokit, name, secret, repo, environment, new_secret_prefix, dry_run, target) {
     return __awaiter(this, void 0, void 0, function* () {
         const [repo_owner, repo_name] = repo.full_name.split("/");
         const publicKey = yield getPublicKey(octokit, repo, environment, target);
         const encrypted_value = (0, utils_1.encrypt)(secret, publicKey.key);
-        core.info(`Set \`${name} = ***\` on ${repo.full_name}`);
+        const final_name = new_secret_prefix ? new_secret_prefix + name : name;
+        core.info(`Set \`${final_name} = ***\` on ${repo.full_name}`);
         if (!dry_run) {
             switch (target) {
                 case "codespaces":
@@ -314,9 +316,10 @@ function setSecretForRepo(octokit, name, secret, repo, environment, dry_run, tar
     });
 }
 exports.setSecretForRepo = setSecretForRepo;
-function deleteSecretForRepo(octokit, name, secret, repo, environment, dry_run, target) {
+function deleteSecretForRepo(octokit, name, secret, repo, environment, new_secret_prefix, dry_run, target) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.info(`Remove ${name} from ${repo.full_name}`);
+        const final_name = new_secret_prefix ? new_secret_prefix + name : name;
+        core.info(`Remove ${final_name} from ${repo.full_name}`);
         try {
             if (!dry_run) {
                 const action = "DELETE";
@@ -513,6 +516,7 @@ function run() {
                 FOUND_SECRETS: Object.keys(secrets),
                 ENVIRONMENT: config.ENVIRONMENT,
                 TARGET: config.TARGET,
+                NEW_SECRET_PREFIX: config.NEW_SECRET_PREFIX,
             }, null, 2));
             const limit = (0, p_limit_1.default)(config.CONCURRENCY);
             const calls = [];
@@ -521,7 +525,7 @@ function run() {
                     const action = config.RUN_DELETE
                         ? github_1.deleteSecretForRepo
                         : github_1.setSecretForRepo;
-                    calls.push(limit(() => action(octokit, k, secrets[k], repo, config.ENVIRONMENT, config.DRY_RUN, config.TARGET)));
+                    calls.push(limit(() => action(octokit, k, secrets[k], repo, config.ENVIRONMENT, config.NEW_SECRET_PREFIX, config.DRY_RUN, config.TARGET)));
                 }
             }
             yield Promise.all(calls);
