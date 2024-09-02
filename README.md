@@ -54,6 +54,10 @@ If this value is set to the name of a valid environment in the target repositori
 
 Target where secrets should be stored: `actions` (default), `codespaces` or `dependabot`.
 
+### `new_secret_prefix`
+
+If this value is set, the action will prefix the name of the secret with the provided value. This is useful when you want to use the same secret name in multiple repositories but want to avoid conflicts.
+
 ## Usage
 
 ```yaml

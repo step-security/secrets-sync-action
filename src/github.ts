@@ -231,6 +231,7 @@ export async function setSecretForRepo(
   secret: string,
   repo: Repository,
   environment: string,
+  new_secret_prefix: string,
   dry_run: boolean,
   target: string
 ): Promise<void> {
@@ -238,8 +239,9 @@ export async function setSecretForRepo(
 
   const publicKey = await getPublicKey(octokit, repo, environment, target);
   const encrypted_value = encrypt(secret, publicKey.key);
+  const final_name = new_secret_prefix ? new_secret_prefix + name : name;
 
-  core.info(`Set \`${name} = ***\` on ${repo.full_name}`);
+  core.info(`Set \`${final_name} = ***\` on ${repo.full_name}`);
 
   if (!dry_run) {
     switch (target) {
@@ -247,7 +249,7 @@ export async function setSecretForRepo(
         return octokit.codespaces.createOrUpdateRepoSecret({
           owner: repo_owner,
           repo: repo_name,
-          secret_name: name,
+          secret_name: final_name,
           key_id: publicKey.key_id,
           encrypted_value,
         });
@@ -255,7 +257,7 @@ export async function setSecretForRepo(
         return octokit.dependabot.createOrUpdateRepoSecret({
           owner: repo_owner,
           repo: repo_name,
-          secret_name: name,
+          secret_name: final_name,
           key_id: publicKey.key_id,
           encrypted_value,
         });
@@ -265,7 +267,7 @@ export async function setSecretForRepo(
           return octokit.actions.createOrUpdateEnvironmentSecret({
             repository_id: repo.id,
             environment_name: environment,
-            secret_name: name,
+            secret_name: final_name,
             key_id: publicKey.key_id,
             encrypted_value,
           });
@@ -273,7 +275,7 @@ export async function setSecretForRepo(
           return octokit.actions.createOrUpdateRepoSecret({
             owner: repo_owner,
             repo: repo_name,
-            secret_name: name,
+            secret_name: final_name,
             key_id: publicKey.key_id,
             encrypted_value,
           });
@@ -288,10 +290,13 @@ export async function deleteSecretForRepo(
   secret: string,
   repo: Repository,
   environment: string,
+  new_secret_prefix: string,
   dry_run: boolean,
   target: string
 ): Promise<void> {
-  core.info(`Remove ${name} from ${repo.full_name}`);
+  const final_name = new_secret_prefix ? new_secret_prefix + name : name;
+
+  core.info(`Remove ${final_name} from ${repo.full_name}`);
 
   try {
     if (!dry_run) {
@@ -299,21 +304,21 @@ export async function deleteSecretForRepo(
       switch (target) {
         case "codespaces":
           return octokit.request(
-            `${action} /repos/${repo.full_name}/codespaces/secrets/${name}`
+            `${action} /repos/${repo.full_name}/codespaces/secrets/${final_name}`
           );
         case "dependabot":
           return octokit.request(
-            `${action} /repos/${repo.full_name}/dependabot/secrets/${name}`
+            `${action} /repos/${repo.full_name}/dependabot/secrets/${final_name}`
           );
         case "actions":
         default:
           if (environment) {
             return octokit.request(
-              `${action} /repositories/${repo.id}/environments/${environment}/secrets/${name}`
+              `${action} /repositories/${repo.id}/environments/${environment}/secrets/${final_name}`
             );
           } else {
             return octokit.request(
-              `${action} /repos/${repo.full_name}/actions/secrets/${name}`
+              `${action} /repos/${repo.full_name}/actions/secrets/${final_name}`
             );
           }
       }

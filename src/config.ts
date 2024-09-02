@@ -28,6 +28,7 @@ export interface Config {
   RUN_DELETE: boolean;
   ENVIRONMENT: string;
   TARGET: string;
+  NEW_SECRET_PREFIX: string;
 }
 
 export function getConfig(): Config {
@@ -54,6 +55,7 @@ export function getConfig(): Config {
     ),
     ENVIRONMENT: core.getInput("ENVIRONMENT", { required: false }),
     TARGET: core.getInput("TARGET", { required: false }),
+    NEW_SECRET_PREFIX: core.getInput("NEW_SECRET_PREFIX", { required: false }),
   };
 
   if (config.DRY_RUN) {

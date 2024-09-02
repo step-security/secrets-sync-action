@@ -1,5 +1,5 @@
 name: "Build"
-on: 
+on:
   [push, pull_request]
 permissions:
   contents: read
@@ -12,8 +12,14 @@ jobs:
       uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
       with:
         egress-policy: audit
-
-    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
+    - uses: actions/checkout@v3
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
     - run: |
         npm i
         npm run all
+    - name: Upload coverage reports to Codecov
+      if: always()
+      uses: codecov/codecov-action@v3

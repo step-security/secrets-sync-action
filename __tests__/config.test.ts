@@ -37,6 +37,7 @@ describe("getConfig", () => {
   const RUN_DELETE = false;
   const ENVIRONMENT = "production";
   const TARGET = "actions";
+  const NEW_SECRET_PREFIX = "PREFIX_";
 
   // Must implement because operands for delete must be optional in typescript >= 4.0
   interface Inputs {
@@ -51,6 +52,7 @@ describe("getConfig", () => {
     INPUT_RUN_DELETE: string;
     INPUT_ENVIRONMENT: string;
     INPUT_TARGET: string;
+    INPUT_NEW_SECRET_PREFIX: string;
   }
   const inputs: Inputs = {
     INPUT_GITHUB_API_URL: String(GITHUB_API_URL),
@@ -64,6 +66,7 @@ describe("getConfig", () => {
     INPUT_RUN_DELETE: String(RUN_DELETE),
     INPUT_ENVIRONMENT: String(ENVIRONMENT),
     INPUT_TARGET: String(TARGET),
+    INPUT_NEW_SECRET_PREFIX: String(NEW_SECRET_PREFIX),
   };
 
   beforeEach(() => {
@@ -93,6 +96,7 @@ describe("getConfig", () => {
       RUN_DELETE,
       ENVIRONMENT,
       TARGET,
+      NEW_SECRET_PREFIX,
     });
   });
 

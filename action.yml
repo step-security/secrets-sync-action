@@ -1,7 +1,7 @@
 # action.yml
 name: "Secrets Sync Action"
 branding:
-  icon: 'copy'  
+  icon: 'copy'
   color: 'red'
 description: "Copies secrets from the action's environment to many other repos."
 inputs:
@@ -65,6 +65,11 @@ inputs:
     description: |
       Target where secrets should be stored: `actions` (default), `codespaces` or `dependabot`.
     default: "actions"
+    required: false
+  new_secret_prefix:
+    default: ""
+    description: |
+      If this value is set, the action will prefix the secret name with this value.
     required: false
 runs:
   using: 'node20'
