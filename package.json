@@ -12,7 +12,7 @@
     "url": "git+https://github.com/step-security/secrets-sync-action.git"
   },
   "license": "Apache 2.0",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
   "scripts": {
     "all": "npm run pre-build && npm run format-check && npm test && npm run build",
     "pre-build": "tsc",
