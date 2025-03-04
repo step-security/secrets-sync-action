@@ -19,6 +19,7 @@ jobs:
         node-version: 18
     - run: |
         npm i
+        echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
         npm run all
     - name: Upload coverage reports to Codecov
       if: always()
