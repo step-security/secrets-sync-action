@@ -58,6 +58,7 @@ describe("listing repos from github", () => {
   beforeEach(() => {
     nock("https://api.github.com")
       .get(/\/user\/repos?.*page=1.*/)
+      .matchHeader("authorization", `token ${process.env.GITHUB_TOKEN}`)
       .reply(200, [
         fixture[0].response,
         fixture[0].response,
