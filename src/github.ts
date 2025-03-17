@@ -103,18 +103,24 @@ export async function listAllMatchingRepos({
   patterns,
   octokit,
   affiliation = "owner,collaborator,organization_member",
-  pageSize = 30,
+  per_page = 30,
 }: {
   patterns: string[];
   octokit: any;
   affiliation?: string;
-  pageSize?: number;
+  per_page?: number;
 }): Promise<Repository[]> {
-  const repos = await listAllReposForAuthenticatedUser({
-    octokit,
-    affiliation,
-    pageSize,
-  });
+  const usingInstallToken = getConfig().GITHUB_TOKEN.startsWith("ghs_");
+  const repos = await (usingInstallToken
+    ? listAllReposAccessibleToInstallation({
+        octokit,
+        per_page,
+      })
+    : listAllReposForAuthenticatedUser({
+        octokit,
+        affiliation,
+        per_page,
+      }));
 
   core.info(
     `Available repositories: ${JSON.stringify(repos.map((r) => r.full_name))}`
@@ -126,11 +132,11 @@ export async function listAllMatchingRepos({
 export async function listAllReposForAuthenticatedUser({
   octokit,
   affiliation,
-  pageSize,
+  per_page,
 }: {
   octokit: any;
   affiliation: string;
-  pageSize: number;
+  per_page: number;
 }): Promise<Repository[]> {
   const repos: Repository[] = [];
 
@@ -138,11 +144,34 @@ export async function listAllReposForAuthenticatedUser({
     const response = await octokit.repos.listForAuthenticatedUser({
       affiliation,
       page,
-      pageSize,
+      per_page,
     });
     repos.push(...response.data);
 
-    if (response.data.length < pageSize) {
+    if (response.data.length < per_page) {
+      break;
+    }
+  }
+  return repos.filter((r) => !r.archived);
+}
+
+export async function listAllReposAccessibleToInstallation({
+  octokit,
+  per_page,
+}: {
+  octokit: any;
+  per_page: number;
+}): Promise<Repository[]> {
+  const repos: Repository[] = [];
+
+  for (let page = 1; ; page++) {
+    const response = await octokit.apps.listReposAccessibleToInstallation({
+      page,
+      per_page,
+    });
+    repos.push(...response.data.repositories);
+
+    if (response.data.repositories.length < per_page) {
       break;
     }
   }
