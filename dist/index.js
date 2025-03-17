@@ -140,7 +140,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.deleteSecretForRepo = exports.setSecretForRepo = exports.getPublicKey = exports.filterReposByPatterns = exports.listAllReposForAuthenticatedUser = exports.listAllMatchingRepos = exports.getRepos = exports.DefaultOctokit = exports.publicKeyCache = void 0;
+exports.deleteSecretForRepo = exports.setSecretForRepo = exports.getPublicKey = exports.filterReposByPatterns = exports.listAllReposAccessibleToInstallation = exports.listAllReposForAuthenticatedUser = exports.listAllMatchingRepos = exports.getRepos = exports.DefaultOctokit = exports.publicKeyCache = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const rest_1 = __nccwpck_require__(5375);
 const utils_1 = __nccwpck_require__(918);
@@ -195,29 +195,35 @@ function getRepos({ patterns, octokit, }) {
     });
 }
 exports.getRepos = getRepos;
-function listAllMatchingRepos({ patterns, octokit, affiliation = "owner,collaborator,organization_member", pageSize = 30, }) {
+function listAllMatchingRepos({ patterns, octokit, affiliation = "owner,collaborator,organization_member", per_page = 30, }) {
     return __awaiter(this, void 0, void 0, function* () {
-        const repos = yield listAllReposForAuthenticatedUser({
-            octokit,
-            affiliation,
-            pageSize,
-        });
+        const usingInstallToken = (0, config_1.getConfig)().GITHUB_TOKEN.startsWith("ghs_");
+        const repos = yield (usingInstallToken
+            ? listAllReposAccessibleToInstallation({
+                octokit,
+                per_page,
+            })
+            : listAllReposForAuthenticatedUser({
+                octokit,
+                affiliation,
+                per_page,
+            }));
         core.info(`Available repositories: ${JSON.stringify(repos.map((r) => r.full_name))}`);
         return filterReposByPatterns(repos, patterns);
     });
 }
 exports.listAllMatchingRepos = listAllMatchingRepos;
-function listAllReposForAuthenticatedUser({ octokit, affiliation, pageSize, }) {
+function listAllReposForAuthenticatedUser({ octokit, affiliation, per_page, }) {
     return __awaiter(this, void 0, void 0, function* () {
         const repos = [];
         for (let page = 1;; page++) {
             const response = yield octokit.repos.listForAuthenticatedUser({
                 affiliation,
                 page,
-                pageSize,
+                per_page,
             });
             repos.push(...response.data);
-            if (response.data.length < pageSize) {
+            if (response.data.length < per_page) {
                 break;
             }
         }
@@ -225,6 +231,23 @@ function listAllReposForAuthenticatedUser({ octokit, affiliation, pageSize, }) {
     });
 }
 exports.listAllReposForAuthenticatedUser = listAllReposForAuthenticatedUser;
+function listAllReposAccessibleToInstallation({ octokit, per_page, }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const repos = [];
+        for (let page = 1;; page++) {
+            const response = yield octokit.apps.listReposAccessibleToInstallation({
+                page,
+                per_page,
+            });
+            repos.push(...response.data.repositories);
+            if (response.data.repositories.length < per_page) {
+                break;
+            }
+        }
+        return repos.filter((r) => !r.archived);
+    });
+}
+exports.listAllReposAccessibleToInstallation = listAllReposAccessibleToInstallation;
 function filterReposByPatterns(repos, patterns) {
     const regexPatterns = patterns.map((s) => new RegExp(s));
     return repos.filter((repo) => regexPatterns.filter((r) => r.test(repo.full_name)).length);
