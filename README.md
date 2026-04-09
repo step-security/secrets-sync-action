@@ -63,7 +63,7 @@ If this value is set, the action will prefix the name of the secret with the pro
 ## Usage
 
 ```yaml
-uses: step-security/secrets-sync-action@[insert version or commit]
+uses: step-security/secrets-sync-action@v1
   with:
     SECRETS: |
       ^FOO$
