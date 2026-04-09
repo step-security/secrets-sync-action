@@ -72,5 +72,5 @@ inputs:
       If this value is set, the action will prefix the secret name with this value.
     required: false
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
