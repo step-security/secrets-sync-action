@@ -1,3 +1,5 @@
+[![StepSecurity Maintained Action](https://raw.githubusercontent.com/step-security/maintained-actions-assets/main/assets/maintained-action-banner.png)](https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions)
+
 # Secrets Sync Action
 
 ![Build](https://github.com/step-security/secrets-sync-action/workflows/Build/badge.svg)
@@ -61,7 +63,7 @@ If this value is set, the action will prefix the name of the secret with the pro
 ## Usage
 
 ```yaml
-uses: step-security/secrets-sync-action@[insert version or commit]
+uses: step-security/secrets-sync-action@v1
   with:
     SECRETS: |
       ^FOO$
